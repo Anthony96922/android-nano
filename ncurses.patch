@@ -1,0 +1,15 @@
+--- ncurses/tinfo/make_hash-old.c	2013-09-28 13:55:47.000000000 -0700
++++ ncurses/tinfo/make_hash.c	2019-08-09 19:23:47.187676200 -0700
+@@ -188,6 +188,7 @@
+     return col ? list : 0;
+ }
+ 
++#if 0
+ int
+ main(int argc, char **argv)
+ {
+@@ -328,3 +329,4 @@
+     free(hash_table);
+     return EXIT_SUCCESS;
+ }
++#endif
