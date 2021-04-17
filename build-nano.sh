@@ -2,11 +2,16 @@
 # Android NDK must be somewhere in your path
 
 ncursesvers=6.0
-nanovers=4.3
+nanovers=5.6.1
+
+nanoMajorVers=$(echo $nanovers | cut -d . -f 1)
+nanoMinorVers=$(echo $nanovers | cut -d . -f 2)
+nanoPatchVers=$(echo $nanovers | cut -d . -f 3)
+[ -z "$nanoPatchVers" ] && nanoPatchVers=0
 
 [ ! -f nano-$nanovers.tar.xz ] && {
   echo "Getting nano..."
-  wget -q https://nano-editor.org/dist/v4/nano-$nanovers.tar.xz
+  wget -q https://nano-editor.org/dist/v$nanoMajorVers/nano-$nanovers.tar.xz
 }
 
 [ ! -d nano ] && {
@@ -19,10 +24,20 @@ cd nano
 
 [ -f config.h ] || {
   echo "Getting extra nano files..."
-  wget -q -O - https://github.com/LineageOS/android_external_nano/raw/lineage-16.0/config.h | \
-    sed -e 's|#define HAVE_PWD_H 1|/* #undef HAVE_PWD_H 1 */|g' > config.h
+  wget -q -O config.h https://github.com/LineageOS/android_external_nano/raw/lineage-16.0/config.h
+  sed -i config.h -e 's|#define HAVE_PWD_H 1|/* #undef HAVE_PWD_H */|g'
+  sed -i config.h -e 's|#define PACKAGE_STRING "GNU nano 4.3"|/* #undef PACKAGE_STRING */|g'
+  sed -i config.h -e 's|#define PACKAGE_VERSION "4.3"|/* #undef PACKAGE_VERSION */|g'
+  sed -i config.h -e 's|#define VERSION "4.3"|/* #undef VERSION */|g'
+  echo '#define PACKAGE_STRING "'$(grep PACKAGE_STRING= configure | cut -d = -f 2 | sed "s/'//g")'"' >> config.h
+  echo '#define PACKAGE_VERSION "'$(grep PACKAGE_VERSION= configure | cut -d = -f 2 | sed "s/'//g")'"' >> config.h
+  echo '#define VERSION "'$(grep ' VERSION=' configure | cut -d = -f 2 | sed "s/'//g")'"' >> config.h
   # apply the patch needed for Android versions without futimes
-  patch -b -p 0 -i ../nano.patch
+  [ $nanoMajorVers -eq 4 -a $nanoMinorVers -eq 9 -a $nanoPatchVers -lt 3 ] && {
+    patch -b -p 1 -i ../nano-4.9.2.patch
+  } || {
+    patch -b -p 1 -i ../nano-4.9.3.patch
+  }
 }
 [ -f revision.h ] || > revision.h
 

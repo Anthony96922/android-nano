@@ -1,0 +1,12 @@
+diff -u -r nano-5.6.1/src/files.c nano/src/files.c
+--- nano-5.6.1/src/files.c	2021-02-23 02:21:19.000000000 -0800
++++ nano/src/files.c	2021-04-17 15:13:41.902674365 -0700
+@@ -1684,7 +1684,7 @@
+ 
+ 	/* Set the backup's timestamps to those of the original file.
+ 	 * Failure is unimportant: saving the file apparently worked. */
+-	IGNORE_CALL_RESULT(futimens(descriptor, filetime));
++	//IGNORE_CALL_RESULT(futimens(descriptor, filetime));
+ 
+ 	if (fclose(backup_file) == 0) {
+ 		free(backupname);
